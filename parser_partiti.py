@@ -19,6 +19,46 @@ def estrai_risultati():
             list_partiti.append(partito)
     except:
         return "Errore nella richiesta al sito."
+    
+        # URL della pagina Wikipedia (Partiti politici italiani)
+    # Useremo sempre lo stesso URL di esempio
+    URL = "https://it.wikipedia.org/wiki/Partiti_politici_italiani"
+    # Il nuovo selettore CSS
+    CSS_SELECTOR_1 = "td:nth-of-type(2) > a"
+    CSS_SELECTOR_2 = ".mw-content-ltr > ul li"
+
+    # --- 1. Ottenere il contenuto della pagina ---
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(URL, headers=headers)
+        response.raise_for_status() 
+
+        html_content = response.text
+
+    except requests.exceptions.RequestException as e:
+        print(f"Errore nella richiesta: {e}")
+        exit()
+
+    # --- 2. Analizzare il contenuto e trovare gli elementi ---
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    def estrai_risultati(CSS_SELECTOR):
+        # Utilizza il metodo .select() con il nuovo selettore
+        anchors = soup.select(CSS_SELECTOR)
+
+        # --- 3. Estrarre e stampare testo ---
+        for i, anchor in enumerate(anchors):
+            # Estrai il testo visibile
+            text = anchor.get_text(strip=True)
+            list_partiti.append(text)
+
+    estrai_risultati(CSS_SELECTOR_1)
+    estrai_risultati(CSS_SELECTOR_2)
+    print(list_partiti)
+
 
     list_partiti = [p for p in list_partiti if p.strip() != ""]
 
